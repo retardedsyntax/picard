@@ -1,0 +1,16 @@
+title: Renaming script for individual songs
+description: ""
+author: Joonas Onatsu
+license: GPL v3.0
+version: '1'
+last_updated: 2024-07-07 23:18:39 UTC
+script_language_version: '1.1'
+script: "$noop( Basic simple renaming )\n\n$noop( $set(_bitrateForFileName,$div(%_sample_rate%,1000)$if($gt($mod(%_sample_rate%,1000),0),.$div($mod(%_sample_rate%,1000),100),)kHz)\
+  \ )\n\n$set(_artistForFileName,$if2(%artists_album_primary_std%,%albumartist%,%artist%,NO-ARTIST))\n\
+  $set(_albumForFileName,$if2($if(%_artistForFileName%,$if2(%release_name%,%album%)),NO-ALBUM))\n\
+  $set(_yearForFileName,[$left($if2(%originaldate%,%originalyear%,%date%,0000),4)])\n\
+  $set(_discNumForFileName,$if($gt(%totaldiscs%,1), \u2010 Disc %discnumber% \u2010\
+  \ ,))\n$set(_trackNumForFileName,$if($gt(%totaldiscs%,1),%discnumber%\u2010$num(%tracknumber%,2),$num(%tracknumber%,2)))\n\
+  $set(_titleForFileName,$if2(%recordingtitle%,%title%))\n\n%_artistForFileName% \u2010\
+  \ %_albumForFileName% \u2010 %_trackNumForFileName% \u2010 %_titleForFileName%\n"
+id: 1900dbf0-86c1-4fc1-8d47-e76b29155ee3

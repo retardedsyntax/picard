@@ -1,0 +1,15 @@
+title: Various Artist Simple Renaming
+description: ""
+author: Joonas Onatsu
+license: GPL v3.0
+version: '1'
+last_updated: 2024-07-07 23:17:24 UTC
+script_language_version: '1.1'
+script: "$noop( Simple Renaming )\n$set(_albumArtistForFileName,$if2(%_artists_album_primary_std%,%_artists_album_all_std%,))\n\
+  $set(_artistForFileName,$if2(%_artists_track_primary_std%,%_artists_track_all_std%,))\n\
+  $set(_albumForFileName,$if2(%release_name%,%album%,))\n$set(_yearForFileName,$if2(%originaldate%,%originalyear%,%date%,0))\n\
+  $set(_titleForFileName,$if2(%recordingtitle%,%title%,))\n\n%_albumArtistForFileName%/\n\
+  %_artistForFileName% \u2010 %_albumForFileName%$if($gt(%_yearForFileName%,0), \\\
+  ($left(%_yearForFileName%,4)\\),) \u2010 $if($gt(%totaldiscs%,1),%discnumber%\u2010\
+  ,)$num(%tracknumber%,2) \u2010 %_titleForFileName%\n"
+id: 2af68ddd-cfd6-4fd8-8b37-cdc69073ee4b

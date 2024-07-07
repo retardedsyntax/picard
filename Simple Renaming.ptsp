@@ -1,0 +1,14 @@
+title: Simple Renaming
+description: ""
+author: Joonas Onatsu
+license: GPL v3.0
+version: '1'
+last_updated: 2024-07-07 23:17:48 UTC
+script_language_version: '1.1'
+script: "$noop( Simple Renaming )\n$set(_artistForFileName,$if2(%_artists_album_primary_std%,%albumartist%,%artist%,))\n\
+  $set(_albumForFileName,$if(%_artistForFileName%,$if2(%release_name%,%album%,),))\n\
+  $set(_yearForFileName,$if2(%originaldate%,%originalyear%,%date%,0))\n$set(_titleForFileName,$if2(%recordingtitle%,%title%,))\n\
+  \n%_artistForFileName%/\n%_albumForFileName%$if($gt(%_yearForFileName%,0), \u2010\
+  \ \\($left(%_yearForFileName%,4)\\),)/\n$if($gt(%totaldiscs%,1),%discnumber%\u2010\
+  ,)$num(%tracknumber%,2) \u2010 %_titleForFileName%\n"
+id: 0a73cf84-c220-4969-b738-e2bed5a4e55d

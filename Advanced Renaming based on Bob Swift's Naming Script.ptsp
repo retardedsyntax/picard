@@ -1,0 +1,312 @@
+title: Advanced Renaming based on Bob Swift's Naming Script
+description: |
+  Advanced Renaming based on Bob Swift's Naming Script.
+  https://github.com/rdswift/picard-scripts/blob/master/naming_scripts/Bob_Swift/Bob%20Swift's%20Naming%20Script.pts
+author: Joonas Onatsu
+license: GPLv3.0
+version: '1'
+last_updated: 2024-07-06 10:22:36 UTC
+script_language_version: '1.1'
+script: "$noop(\n########################################################################\n\
+  #                                                                      #\n#  Picard\
+  \ File Naming Script                               2022-12-03  #\n#  Bob Swift [rdswift]\
+  \                                                 #\n#                         \
+  \                                             #\n#  License: GPLv3.0           \
+  \                                         #\n#                                 \
+  \                                     #\n########################################################################\n\
+  #                                                                      #\n#  This\
+  \ script relies on the following inputs provided by the          #\n#  \"Additional\
+  \ Artists Variables\" plugin:                              #\n#                \
+  \                                                      #\n#  Album Variables   \
+  \                                                  #\n#                        \
+  \                                              #\n#      _artists_album_primary_std\
+  \ - The primary / first album artist   #\n#               listed [standardized]\
+  \                                  #\n#      _artists_album_primary_sort - The primary\
+  \ / first album         #\n#               artist listed [sort name]           \
+  \                   #\n#      _artists_album_all_std - All album artists listed\
+  \               #\n#               [standardized], separated with strings provided\
+  \ from   #\n#               the release entry                                  \
+  \    #\n#      _artists_album_all_sort - All album artists listed              #\n\
+  #               [sort names], separated with strings provided from     #\n#    \
+  \           the release entry                                      #\n#      _artists_album_all_sort_primary\
+  \ - The primary / first album     #\n#               artist listed [sort name] followed\
+  \ by all additional   #\n#               album artists [standardized], separated\
+  \ with strings   #\n#               provided from the release entry            \
+  \            #\n#                                                              \
+  \        #\n#  Track Variables                                                 \
+  \    #\n#                                                                      #\n\
+  #      _artists_track_primary_cred - The primary / first track artist  #\n#    \
+  \           listed [as credited]                                   #\n#      _artists_track_additional_cred\
+  \ - All track artists listed [as   #\n#               credited] except for the primary\
+  \ / first artist,       #\n#               separated with strings provided from\
+  \ the track entry   #\n#      _artists_track_all_cred - All track artists listed\
+  \              #\n#               [as credited], separated with strings provided\
+  \ from    #\n#               the track entry                                   \
+  \     #\n#                                                                     \
+  \ #\n########################################################################\n\
+  )\n\n\n$noop(\n########################################################################\n\
+  #                                                                      #\n#  User\
+  \ Settings:                                                      #\n#          \
+  \                                                            #\n#  _PaddedDiscNumMinLength\
+  \ - Minimum length to pad disc numbers        #\n#  _PaddedTrackNumMinLength - Minimum\
+  \ length to pad track numbers      #\n#                                        \
+  \                              #\n#                                            \
+  \                          #\n#  Processing Flags [set to '1' to include or '' to\
+  \ omit]:             #\n#                                                      \
+  \                #\n#  _aTitleReleaseYear - Add the release year to the title  \
+  \            #\n#  _aTitleDisambig - Add the disambiguation to the title       \
+  \        #\n#  _aTitleLabel - Add the label information to the title           \
+  \    #\n#  _aTitleCatalog - Add the catalogue number to the title              #\n\
+  #  _aExtension - Add separate directores under the album directory     #\n#    \
+  \            for each music file extension processed               #\n#  _aNoArtistSort\
+  \ - Do not sort the album artist name in the file      #\n#                path\
+  \ rather than the default of sorted                #\n#  _aSortOnFirstName - Sort\
+  \ / group based on album artist first name   #\n#                rather than the\
+  \ default last name                     #\n#  _aReplaceSpecialChars - Replace special\
+  \ characters in the album     #\n#                and track artists used in the\
+  \ output file path and    #\n#                name. Note that some of these replacements\
+  \ may        #\n#                revert back to an underscore because of processing\
+  \    #\n#                for Windows compatibility.                            #\n\
+  #                                                                      #\n#    \
+  \            All forbidden Unicode symbols are always replaced     #\n#        \
+  \        regardless of this setting.                           #\n#            \
+  \                                                          #\n########################################################################\n\
+  )\n$set(_PaddedDiscNumMinLength,1)\n$set(_PaddedTrackNumMinLength,2)\n\n$set(_aTitleReleaseYear,)\n\
+  $set(_aTitleDisambig,)\n$set(_aTitleLabel,)\n$set(_aTitleCatalog,)\n$set(_aExtension,)\n\
+  $set(_aNoArtistSort,1)\n$set(_aSortOnFirstName,1)\n$set(_aReplaceSpecialChars,1)\n\
+  \n\n$noop(\n########################################################################\n\
+  #                                                                      #\n#  Constants\
+  \                                                           #\n#               \
+  \                                                       #\n#  _cUnknownArtistID\
+  \ - MBID of \"Unknown Artist\"                        #\n#  _cVariousArtistID -\
+  \ MBID of \"Various Artists\"                       #\n#  _cUnknownArtist - Text\
+  \ to use for \"Unknown Artist\"                  #\n#  _cVariousArtist - Text to\
+  \ use for \"Various Artists\"                 #\n#  _cUnknownAlbum - Text to use\
+  \ for unknown album title                #\n#  _cNoTitle - Text to use for unknown\
+  \ track title                     #\n#  _cSoundtrack - Text to use for path to soundtrack\
+  \ albums            #\n#  _cSingles - Text to use as album title for singles by\
+  \ an artist     #\n#  _cOther - Text to use for path to other albums           \
+  \           #\n#                                                               \
+  \       #\n########################################################################\n\
+  )\n$set(_cUnknownArtistID,125ec42a-7229-4250-afc5-e057484327fe)\n$set(_cVariousArtistID,89ad4ac3-39f7-470e-963a-56509c546377)\n\
+  $set(_cUnknownArtist,[Unknown Artist])\n$set(_cVariousArtist,[Various Artists])\n\
+  $set(_cUnknownAlbum,[Unknown Album])\n$set(_cNoTitle,[Unknown Title])\n$set(_cSoundtrack,[Soundtracks])\n\
+  $set(_cSingles,[Singles])\n$set(_cOther,[Other])\n\n\n$noop(\n########################################################################\n\
+  #                                                                      #\n#  RegEx\
+  \ Constants                                                     #\n#           \
+  \                                                           #\n########################################################################\n\
+  )\n$set(_reCaseInsensitive,\\(?i\\))\n\n\n$noop(\n###############################################################################\n\
+  #                                                                             #\n\
+  #  Variables used for processing, set to defaults if \"Additional              #\n\
+  #  Artists Variables\" plugin not loaded or metadata is missing:               #\n\
+  #                                                                             #\n\
+  #  _nAllAlbumArtistsStd - All album artists [standard]                        #\n\
+  #  _nPriAlbumArtistStd - Primary album artist [standard]                      #\n\
+  #  _nAllAlbumArtistsSort - All album artists [sort]                           #\n\
+  #  _nPriAlbumArtistSort - Primary album artist [sort]                         #\n\
+  #  _nAllAlbumArtistsPriArtistSort - All album artists [primary artist sort]   #\n\
+  #  _nPriTrackArtistCred - Primary track artist [credited]                     #\n\
+  #  _nAdditionalTrackArtistsCred - Additional track artists [credited]         #\n\
+  #  _nAllTrackArtistsCred - All track artists [credited]                       #\n\
+  #  _nAlbumTitleInitial - Album title                                          #\n\
+  #  _nAlbumTitleFinal - Album title [with additional information added later]  #\n\
+  #  _nTrackTitleInitial - Track title                                          #\n\
+  #  _nTrackTitleFinal - Track title [with additional information added later]  #\n\
+  #                                                                             #\n\
+  ###############################################################################\n\
+  )\n$set(_nAllAlbumArtistsStd,$if2(%_artists_album_all_std%,%albumartist%,%_cUnknownArtist%))\n\
+  $set(_nPriAlbumArtistStd,$if2(%_artists_album_primary_std%,%albumartist%,%_cUnknownArtist%))\n\
+  $set(_nAllAlbumArtistsSort,$if2(%_artists_album_all_sort%,%albumartistsort%,%_cUnknownArtist%))\n\
+  $set(_nPriAlbumArtistSort,$if2(%_artists_album_primary_sort%,%albumartistsort%,%_cUnknownArtist%))\n\
+  $set(_nAllAlbumArtistsPriArtistSort,$if2(%_artists_album_all_sort_primary%,%albumartistsort%,%_cUnknownArtist%))\n\
+  \n$set(_nPriTrackArtistCred,$if2(%_artists_track_primary_cred%,%artist%,%_cUnknownArtist%))\n\
+  $set(_nAdditionalTrackArtistsCred,%_artists_track_additional_cred%)\n$set(_nAllTrackArtistsCred,$if2(%_artists_track_all_cred%,%artist%,%_cUnknownArtist%))\n\
+  \n$set(_nAlbumTitleInitial,$if2(%release_name%,%album%,%_cUnknownAlbum%))\n$set(_nAlbumTitleFinal,$if2(%release_name%,%album%,%_cUnknownAlbum%))\n\
+  \n$set(_nTrackTitleInitial,$if2(%recordingtitle%,%title%,%_cNoTitle%))\n$set(_nTrackTitleFinal,$if2(%recordingtitle%,%title%,%_cNoTitle%))\n\
+  \n\n$noop(\n##################################################################################\n\
+  #                                                                              \
+  \  #\n#  Replace special characters in the album and track artists used in     \
+  \        #\n#  the output file path and name.                                  \
+  \              #\n#                                                            \
+  \                    #\n#  Note that some of these replacements may revert back\
+  \ to an                    #\n#  underscore because of processing for Windows compatability.\
+  \                   #\n#                                                       \
+  \                         #\n#                                                 \
+  \                               #\n#  Also replace en-dash, em-dash and other dash-like\
+  \ things with Unicode         #\n#  hyphen-minus U+002D for consistency. Based on\
+  \ 'hyphen_unicode' plugin:        #\n#  https://github.com/metabrainz/picard-plugins/tree/2.0/plugins/hyphen_unicode\
+  \  #\n#  https://en.wikipedia.org/wiki/Dash                                    \
+  \        #\n#                                                                  \
+  \              #\n#  Hyphen U+2010                                             \
+  \                    #\n#  Non-Breaking Hyphen U+2011                          \
+  \                          #\n#  Figure Dash U+2012                            \
+  \                                #\n#  En-Dash U+2013                          \
+  \                                      #\n#  Em-Dash U+2014                    \
+  \                                            #\n#  Horizontal Bar U+2015       \
+  \                                                  #\n#  Minus Sign U+2212     \
+  \                                                        #\n#                  \
+  \                                                              #\n##################################################################################\n\
+  )\n$foreach(_nAllAlbumArtistsStd; _nAllAlbumArtistsSort; _nPriAlbumArtistStd; _nPriAlbumArtistSort;\
+  \ _nAllAlbumArtistsPriArtistSort; _nPriTrackArtistCred; _nAdditionalTrackArtistsCred;\
+  \ _nAllTrackArtistsCred,\n    $noop( Disabled Replacements:\n    $set(%_loop_value%,$rreplace($get(%_loop_value%),/,\u2022\
+  ))\n    $set(%_loop_value%,$rreplace($get(%_loop_value%),:,\u02D0))\n    $set(%_loop_value%,$rreplace($get(%_loop_value%),[.]3,\u2026\
+  ))\n    $set(%_loop_value%,$rreplace($get(%_loop_value%),[.]2_,\u2026))\n    )\n\
+  \n    $if(%_aReplaceSpecialChars%,\n        $set(%_loop_value%,$rreplace($get(%_loop_value%),[._]*\\\
+  $,)))\n    $set(%_loop_value%,$replace_forbidden($get(%_loop_value%)))\n\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2010\
+  ,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2011,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2012\
+  ,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2013,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2014\
+  ,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2212,-))\n)\n$foreach(_nAlbumTitleInitial;\
+  \ _nAlbumTitleFinal; _nTrackTitleInitial; _nTrackTitleFinal,\n    $noop( Disabled\
+  \ Replacements:\n    $set(%_loop_value%,$rreplace($get(%_loop_value%),/,\u2022))\n\
+  \    $set(%_loop_value%,$rreplace($get(%_loop_value%),:,\u02D0))\n    $set(%_loop_value%,$rreplace($get(%_loop_value%),[.]3,\u2026\
+  ))\n    $set(%_loop_value%,$rreplace($get(%_loop_value%),[.]2_,\u2026))\n    )\n\
+  \n    $if(%_aReplaceSpecialChars%,\n        $set(%_loop_value%,$rreplace($get(%_loop_value%),[._]*\\\
+  $,)))\n    $set(%_loop_value%,$replace_forbidden($get(%_loop_value%)))\n\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2010\
+  ,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2011,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2012\
+  ,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2013,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2014\
+  ,-))\n    $set(%_loop_value%,$replace($get(%_loop_value%),\u2212,-))\n)\n\n$noop(\n\
+  ########################################################################\n#    \
+  \                                                                  #\n#  Initialize\
+  \ Working Variables                                        #\n#                \
+  \                                                      #\n########################################################################\n\
+  )\n$set(_nMedia,%media%)\n$set(_nTotalDiscs,$if2(%totaldiscs%,1))\n$set(_nDiscNum,$if2(%discnumber%,1))\n\
+  $set(_nTotalTracks,$if2(%totaltracks%,1))\n$set(_nTrackNum,$if2(%tracknumber%,1))\n\
+  $set(_nAlbumArtistID,$if2(%musicbrainz_albumartistid%,%_cUnknownArtistID%))\n$set(_nInitial,~\
+  \ $upper($firstalphachar($if(%_aSortOnFirstName%,$delprefix(%_nPriAlbumArtistStd%),%_nAllAlbumArtistsPriArtistSort%),#))\
+  \ ~/)\n\n$noop(\n------------------------------------------------------------------------\n\
+  -  If standardized primary album artist is different from credited     -\n-  primary\
+  \ track artist [other than prefix] show in track file name.   -\n-  Otherwise, show\
+  \ any additional credited track artists in track      -\n-  file name.         \
+  \                                                 -\n------------------------------------------------------------------------\n\
+  )\n$set(_tAlbumArtist,$lower($delprefix(%_nPriAlbumArtistStd%)))\n$set(_tTrackArtist,$lower($delprefix(%_nPriTrackArtistCred%)))\n\
+  $if($eq(%_tAlbumArtist%,%_tTrackArtist%),\n    $set(_nFeat,$if(%_nAdditionalTrackArtistsCred%,\
+  \ [feat. %_nAdditionalTrackArtistsCred%],)),\n    $set(_nFeat, [%_nAllTrackArtistsCred%])\n\
+  )\n\n$noop(\n------------------------------------------------------------------------\n\
+  -  Calculate the maximum lengths for disc and track numbers and set    -\n-  the\
+  \ desired padding lengths.                                        -\n------------------------------------------------------------------------\n\
+  )\n$set(_TotalDiscNumberLength,$len($if2(%totaldiscs%,1)))\n$set(_TotalTrackNumberLength,$len($if2(%totaltracks%,1)))\n\
+  $set(_DiscPadLength,$if($gt(%_TotalDiscNumberLength%,%_PaddedDiscNumMinLength%),%_TotalDiscNumberLength%,%_PaddedDiscNumMinLength%))\n\
+  $set(_TrackPadLength,$if($gt(%_TotalTrackNumberLength%,%_PaddedTrackNumMinLength%),%_TotalTrackNumberLength%,%_PaddedTrackNumMinLength%))\n\
+  \n$noop(\n------------------------------------------------------------------------\n\
+  -  Automatically pad disc and track numbers to the length of the       -\n-  total\
+  \ number of discs and tracks.                                   -\n------------------------------------------------------------------------\n\
+  )\n$set(_PaddedDiscNum,$num($if2(%discnumber%,1),%_DiscPadLength%))\n$set(_PaddedTrackNum,$num($if2(%tracknumber%,1),%_TrackPadLength%))\n\
+  \n$noop(\n------------------------------------------------------------------------\n\
+  -  Set the year for the release                                        -\n------------------------------------------------------------------------\n\
+  )\n$set(_nYear,\\($left($if2(%originaldate%,%originalyear%,%date%,0000),4)\\))\n\
+  \n$noop(\n------------------------------------------------------------------------\n\
+  -  Always concatenate disc number to the track number, regardless of   -\n-  disc\
+  \ count.\n------------------------------------------------------------------------\n\
+  )\n$set(_nTNum,%_PaddedDiscNum%-%_PaddedTrackNum%)\n\n$noop(\n------------------------------------------------------------------------\n\
+  -  Add disambiguation, release year, label and catalog number to       -\n-  the\
+  \ album title information as available and enabled in the         -\n-  \"User Settings\"\
+  \ section.  Use the first value there is more than    -\n-  one specified in the\
+  \ metadata.                                      -\n------------------------------------------------------------------------\n\
+  )\n$set(_nDisambig,$if($and(%_releasecomment%,%_aTitleDisambig%), \\(%_releasecomment%\\\
+  ),))\n\n$set(_nTitleExtra,)\n$if(%_aTitleLabel%,$if(%label%,\n        $setmulti(_temp,%label%)\n\
+  \        $set(_nTitleExtra,$getmulti(%_temp%,0))\n    )\n)\n$if(%_aTitleCatalog%,$if(%catalognumber%,\n\
+  \        $setmulti(_temp,%catalognumber%)\n        $set(_nTitleExtra,$trim(%_nTitleExtra%\
+  \ $getmulti(%_temp%,0)))\n    )\n)\n$if(%_aTitleReleaseYear%,$if(%date%,\n     \
+  \   $set(_temp,$left(%date%,4))\n        $if($ne([%_temp%],%_nYear%),\n        \
+  \    $if(%_nTitleExtra%,$set(_nTitleExtra,%_nTitleExtra%\\,))\n            $set(_nTitleExtra,$trim(%_nTitleExtra%\
+  \ %_temp%))\n        )\n    )\n)\n$if(%_nTitleExtra%,$set(_nTitleExtra, [%_nTitleExtra%]))\n\
+  \n$set(_nAlbumTitleFinal,%_nAlbumTitleFinal%%_nDisambig%%_nTitleExtra%)\n\n\n$noop(\n\
+  ########################################################################\n#    \
+  \                                                                  #\n#  Set Album\
+  \ Type [Single, Soundtrack, Other or Standard]   #\n#                          \
+  \                                            #\n########################################################################\n\
+  )\n\n$noop(\n------------------------------------------------------------------------\n\
+  -  Set to \"Single\" if the primary release type is 'single' AND there   -\n-  is\
+  \ only one disc AND there is only one track in the release.        -\n------------------------------------------------------------------------\n\
+  )\n$if($and($in(%_primaryreleasetype%,single),$lte(%_nTotalDiscs%,1),$lte(%_nTotalTracks%,1)),$set(_nAlbumType,Single))\n\
+  \n$noop(\n------------------------------------------------------------------------\n\
+  -  Set to \"Soundtrack\" if one of the secondary release types is        -\n-  'soundtrack'.\
+  \  Also add the track artist to the track title.        -\n------------------------------------------------------------------------\n\
+  )\n$if($in(%_secondaryreleasetype%,soundtrack),\n    $set(_nAlbumType,Soundtrack)\n\
+  \    $set(_nFeat, [%_nAllTrackArtistsCred%])\n)\n\n$noop(\n------------------------------------------------------------------------\n\
+  -  Set to \"Other\" if one of the secondary release types is 'other'.    -\n-  Also\
+  \ add the track artist to the track title.                       -\n------------------------------------------------------------------------\n\
+  )\n$if($in(%releasetype%,other),\n    $set(_nAlbumType,Other)\n    $set(_nFeat,\
+  \ [%_nAllTrackArtistsCred%])\n)\n\n$noop(\n------------------------------------------------------------------------\n\
+  -  Set to \"Standard\" if not processing type is not already set.        -\n------------------------------------------------------------------------\n\
+  )\n$set(_nAlbumType,$if2(%_nAlbumType%,Standard))\n\n\n$noop(\n##################################################################################\n\
+  #                                                                              \
+  \  #\n#  Set the file path and name in accordance with the specified processing\
+  \ type.  #\n#                                                                  \
+  \              #\n#                                                            \
+  \                    #\n#  Process as Other                                    \
+  \                          #\n#   Format: /[Other]/[year] Album/Disc-Track Title\
+  \ [Artist]                      #\n#                                           \
+  \                                     #\n#  Process as Soundtrack              \
+  \                                           #\n#   Format: /[Soundtrack]/[year]\
+  \ Album/Disc-Track Title [Artist]                 #\n#                         \
+  \                                                       #\n#  Process as Single\
+  \                                                             #\n#   Formats: /~\
+  \ A ~/Album Artist/[~Singles~]/[year] Title [feat.]                #\n#        \
+  \                                                                        #\n#  Process\
+  \ as Standard                                                           #\n#   Formats:\
+  \ /~ A ~/Album Artist/[year] Album/Disc-Track Title [feat.]           #\n#     \
+  \       /~ # ~/Album Artist/[year] Album/Disc-Track Title [feat.]           #\n\
+  #            /[Various Artists]/[year] Album/Disc-Track Title [Artist]         \
+  \  #\n#            /[Unknown Artists]/[year] Album/Disc-Track Title [Artist]   \
+  \        #\n#                                                                  \
+  \              #\n##################################################################################\n\
+  )\n\n$noop(\n------------------------------------------------------------------------\n\
+  -  Set the file path.                                                  -\n------------------------------------------------------------------------\n\
+  )\n$noop(\n$if($eq(%_nAlbumType%,Soundtrack),$set(_nFilePath,%_cSoundtrack%/%_nYear%\
+  \ %_nAlbumTitleFinal%/))\n$if($eq(%_nAlbumType%,Other),$set(_nFilePath,%_cOther%/%_nYear%\
+  \ %_nAlbumTitleFinal%/))\n$if($eq(%_nAlbumType%,Single),$set(_nFilePath,%_nInitial%/$if(%_aNoArtistSort%,%_nPriAlbumArtistStd%,%_nPriAlbumArtistSort%)/%_cSingles%/))\n\
+  $if($eq(%_nAlbumType%,Standard),$if($eq($if2(%musicbrainz_albumartistid%,%_cVariousArtistID%),%_cVariousArtistID%),\n\
+  \    $set(_nFilePath,%_cVariousArtist%/%_nYear% %_nAlbumTitleFinal%/),\n    $if($eq($if2(%musicbrainz_albumartistid%,%_cUnknownArtistID%),%_cUnknownArtistID%),\n\
+  \        $set(_nFilePath,%_cUnknownArtist%/%_nYear% %_nAlbumTitleFinal%/),\n   \
+  \     $set(_nFilePath,%_nInitial%/$if(%_aNoArtistSort%,%_nAllAlbumArtistsStd%,%_nAllAlbumArtistsPriArtistSort%)/%_nYear%\
+  \ %_nAlbumTitleFinal%/)\n)))\n)\n$if($eq($if2(%musicbrainz_albumartistid%,%_cVariousArtistID%),%_cVariousArtistID%),\n\
+  \    $set(_nFilePath,%_cVariousArtist%/%_nYear% %_nAlbumTitleFinal%/),\n    $if($eq($if2(%musicbrainz_albumartistid%,%_cUnknownArtistID%),%_cUnknownArtistID%),\n\
+  \        $set(_nFilePath,%_cUnknownArtist%/%_nYear% %_nAlbumTitleFinal%/),\n   \
+  \     $set(_nFilePath,%_nInitial%/$if(%_aNoArtistSort%,%_nAllAlbumArtistsStd%,%_nAllAlbumArtistsPriArtistSort%)/%_nYear%\
+  \ %_nAlbumTitleFinal%/)\n))\n$if(%_aExtension%,$set(_nFilePath,%_nFilePath%/$upper(%_extension%)))\n\
+  \n$noop(\n------------------------------------------------------------------------\n\
+  -  Set the file name.                                                  -\n------------------------------------------------------------------------\n\
+  $if($eq(%_nAlbumType%,Classical),$set(_nFileName,%_nTNum%%_nFeat% %_nTrackTitleFinal%))\n\
+  $if($eq(%_nAlbumType%,Soundtrack),$set(_nFileName,%_nTNum% %_nTrackTitleFinal%%_nFeat%))\n\
+  $if($eq(%_nAlbumType%,Other),$set(_nFileName,%_nTNum% %_nTrackTitleFinal%))\n$if($eq(%_nAlbumType%,Single),$set(_nFileName,%_nYear%\
+  \ %_nTrackTitleFinal%%_nFeat%))\n$if($eq(%_nAlbumType%,Standard),$set(_nFileName,%_nTNum%\
+  \ %_nTrackTitleFinal%%_nFeat%))\n)\n$set(_nFileName,%_nTNum% %_nTrackTitleFinal%%_nFeat%)\n\
+  \n\n\n$noop(\n##################################################################################\n\
+  #                                                                              \
+  \  #\n#  Replace special characters in the album and track artists used in     \
+  \        #\n#  the output file path and name.                                  \
+  \              #\n#                                                            \
+  \                    #\n#  Note that some of these replacements may revert back\
+  \ to an                    #\n#  underscore because of processing for Windows compatability.\
+  \                   #\n#                                                       \
+  \                         #\n#  Also replace en-dash, em-dash and other dash-like\
+  \ things with Unicode         #\n#  hyphen-minus U+002D for consistency. Based on\
+  \ 'hyphen_unicode' plugin:        #\n#  https://github.com/metabrainz/picard-plugins/tree/2.0/plugins/hyphen_unicode\
+  \  #\n#  https://en.wikipedia.org/wiki/Dash                                    \
+  \        #\n#                                                                  \
+  \              #\n#  Hyphen U+2010                                             \
+  \                    #\n#  Non-Breaking Hyphen U+2011                          \
+  \                          #\n#  Figure Dash U+2012                            \
+  \                                #\n#  En-Dash U+2013                          \
+  \                                      #\n#  Em-Dash U+2014                    \
+  \                                            #\n#  Horizontal Bar U+2015       \
+  \                                                  #\n#  Minus Sign U+2212     \
+  \                                                        #\n#                  \
+  \                                                              #\n##################################################################################\n\
+  )\n\n$noop(\n########################################################################\n\
+  #                                                                      #\n#  Output\
+  \ the path and file name to use.                               #\n#            \
+  \                                                          #\n########################################################################\n\
+  $set(OutputPath,%_nFilePath%)\n$set(OutputFileName,%_nFileName%)\n)\n$set(_nOutputFile,\n\
+  \    $if(%_aReplaceSpecialChars%,\n        $rreplace(%_nFilePath%/%_nFileName%,[?*:\\\
+  \\_]+,_),%_nFilePath%/%_nFileName%))\n\n$set(%_nOutputFile%,$replace(%_nOutputFile%,\u2010\
+  ,-))\n$set(%_nOutputFile%,$replace(%_nOutputFile%,\u2011,-))\n$set(%_nOutputFile%,$replace(%_nOutputFile%,\u2012\
+  ,-))\n$set(%_nOutputFile%,$replace(%_nOutputFile%,\u2013,-))\n$set(%_nOutputFile%,$replace(%_nOutputFile%,\u2014\
+  ,-))\n$set(%_nOutputFile%,$replace(%_nOutputFile%,\u2212,-))\n\n%_nOutputFile%\n\
+  \n$noop(\n########################################################################\n\
+  #                                                                      #\n#  End\
+  \ of script.                                                      #\n#         \
+  \                                                             #\n########################################################################\n\
+  )\n"
+id: 4d916437-3d3e-4ff3-b81f-89515c3fbf0d
