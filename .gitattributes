@@ -1,15 +1,10 @@
-*.ptsp eol=crlf
-* eol=crlf
-
 # Common settings that generally should always be used with your language specific settings
 
 # Auto detect text files and perform LF normalization
-*          text=auto
+* text=auto
 
 #
 # The above will handle all files NOT found below
 #
-
-# Documents
 *.ptsp     text diff=astextplain eol=crlf
 *.md       text diff=markdown
